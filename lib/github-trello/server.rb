@@ -8,6 +8,12 @@ module GithubTrello
     post "/posthook" do
       config, http = self.class.config, self.class.http
 
+      if config.key?("secret")
+        request.body.rewind
+        payload_body = request.body.read
+        verify_signature(payload_body, config["secret"], request.env['HTTP_X_HUB_SIGNATURE'])
+      end
+
       payload = JSON.parse(params[:payload])
 
       board_id = config["board_ids"][payload["repository"]["name"]]
@@ -112,6 +118,12 @@ module GithubTrello
 
     get "/" do
       ""
+    end
+
+    def verify_signature(payload_body, secret, github_signature)
+      hmac_digest = OpenSSL::Digest.new('sha1')
+      signature = 'sha1=' + OpenSSL::HMAC.hexdigest(hmac_digest, secret, payload_body)
+      return halt 500, "Signatures didn't match!" unless Rack::Utils.secure_compare(signature, github_signature)
     end
 
     def self.config=(config)

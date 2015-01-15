@@ -17,6 +17,7 @@ Vegas::Runner.new(GithubTrello::Server, "trello-web", {
       config = <<YAML
 oauth_token: [token]
 api_key: [key]
+secret: [secret]
 board_ids:
   [repo name]: [board id]
 on_start:

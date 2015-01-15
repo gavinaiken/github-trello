@@ -1,0 +1,80 @@
+#!/bin/sh
+# teamcity     Startup script for the trello integration server
+#
+# chkconfig: - 64 36
+# description: Trello Integration
+#
+
+trello_cmd=trello-web
+trello_bin_dir=/home/ec2-user/github-trello/bin
+trello_port=10001
+
+echo_ok()
+{
+    echo "$(tput setaf 2)$1$(tput setaf 0)"
+}
+
+echo_error()
+{
+    echo "$(tput setaf 1)$1$(tput setaf 0)"
+}
+
+start()
+{
+    is_running
+    if [ $? -eq 0 ]
+	then
+		echo_ok "$trello_cmd is already running"
+		return 0
+	fi
+                                           
+    old_cwd=`pwd`
+    cd $trello_bin_dir
+
+    ./$trello_cmd --port $trello_port > /dev/null 2>&1
+
+    cd $old_cwd
+}
+
+stop()
+{
+    is_running
+    if [ $? -ne 0 ]
+	then
+		echo_ok "$trello_cmd is not running"
+		return 0
+	fi
+    pkill -f $trello_cmd
+}
+
+is_running()
+{
+    pgrep -f $trello_cmd > /dev/null
+}
+
+status()
+{
+    is_running
+    if [ $? -eq 0 ]
+	then
+		echo_ok "$trello_cmd is running"
+	else
+		echo_error "$trello_cmd is not running"
+	fi
+}
+
+case "$1" in
+start)
+    start
+;;
+stop)
+    stop
+;;
+status)
+    status
+;;
+*)
+  echo "Run as $0 (start|stop|status)"
+  exit 1
+;;
+esac

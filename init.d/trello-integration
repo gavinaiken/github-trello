@@ -6,7 +6,8 @@
 #
 
 trello_cmd=trello-web
-trello_bin_dir=/home/ec2-user/github-trello/bin
+run_as_user=ec2-user
+trello_bin_dir=~$run_as_user/github-trello/bin
 trello_port=10001
 
 echo_ok()
@@ -28,12 +29,9 @@ start()
 		return 0
 	fi
                                            
-    old_cwd=`pwd`
-    cd $trello_bin_dir
-
-    ./$trello_cmd --port $trello_port > /dev/null 2>&1
-
-    cd $old_cwd
+    su - $run_as_user -c "$trello_bin_dir/$trello_cmd --port $trello_port > /dev/null 2>&1"
+    sleep 1
+    status
 }
 
 stop()

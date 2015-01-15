@@ -25,7 +25,7 @@ module GithubTrello
 
       payload["commits"].each do |commit|
         # Figure out the card short id
-        match = commit["message"].match(/((case|card|close|archive|fix)e?s? \D?([0-9]+))/i)
+        match = commit["message"].match(/((case|card|close|archive|fix|finish)e?s?d? \D?([0-9]+))/i)
         next unless match and match[3].to_i > 0
 
         results = http.get_card(board_id, match[3].to_i)
@@ -38,7 +38,7 @@ module GithubTrello
 
         # Add the commit comment
         message = "#{commit["author"]["name"]}: #{commit["message"]}\n\n[#{branch}] #{commit["url"]}"
-        message.gsub!(match[1], "")
+        message.gsub!(/^ *\[ *#{match[1]} *\].*$/, "")
         message.gsub!(/\(\)$/, "")
 
         http.add_comment(results["id"], message)
@@ -46,7 +46,7 @@ module GithubTrello
         # Determine the action to take
         update_config = case match[2].downcase
           when "case", "card" then config["on_start"]
-          when "close", "fix" then config["on_close"]
+          when "close", "fix", "finish" then config["on_close"]
           when "archive" then {:archive => true}
         end
 

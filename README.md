@@ -4,24 +4,35 @@ Allows you to manage or reference your Trello board through commits to Github. T
 
 Commands
 -
-Commit messages are searched for `(case|card|close|archive|fix)e?s? \D?([0-9]+)` to find the card short id. Case/card resolve to on_start configuration, close/fix resolve to on_close, and archive will just archive the card regardless.
+Commit messages are searched for `(case|card|close|archive|fix|finish)e?s? \D?([0-9]+)` to find the card short id. Case/card resolve to on_start configuration, close/fix/finish resolve to on_close, and archive will just archive the card regardless.
 
 The commit message is added as a comment to the card as well.
 
 Usage
 -
 
-See `trello-web --help` for a list of arguments for starting the server. If your domain name is foobar.com and the server is listening on port 4000, then set the posthook URL on Github to __http://foobar.com:4000/posthook__
+See `trello-web --help` for a list of arguments for starting the server.
 
 On the first run, it will create an empty configuration file for you that you will need to configure based on how you want it to manage.
 
 You will need to get your api key and OAuth token with read/write access that won't expire for this to work. You can either use your own account, or create a separate deployment one for this.
 
-Go to https://trello.com/1/appKey/generate to get your key, then go to _https://trello.com/1/authorize?response_type=token&name=Trello+Github+Integration&scope=read,write&expiration=never&key=[your-key-here]_ replacing __[your-key-here]__ with the key Trello gave you. Authorize the request and then add the token and key to your trello.yml file.
+Go to https://trello.com/1/appKey/generate to get your key, then go to _https://trello.com/1/authorize?response_type=token&name=Trello+Github+Integration&scope=read,write&expiration=never&key=[your-key-here]_ replacing __[your-key-here]__ with the key Trello gave you. Authorize the request and then add the token and key to your trello.yml file. Also set a random string to be used as the secret key which will be used to verify the signature on the payload from Github.
 
 You can get the board id from the URL, for example https://trello.com/board/trello-development/4d5ea62fd76aa1136000000c the board id is _4d5ea62fd76aa1136000000ca_.
 
 There are 3 actions you can configure to decide what happens to a card, __on_start__ for case/card, __on_close__ for close/fix. __on_deploy__ requires an additional hookin to your deployment that you can read below.
+
+Github
+-
+
+If your domain name is foobar.com and the server is listening on port 4000, then set the posthook URL on Github to __http://foobar.com:4000/posthook__
+
+Set the `Content type` to `application/x-www-form-urlencoded`.
+
+Set the `Secret` to the same string you configured in the trello.yml file.
+
+Only the `push` event is currently supported.
 
 Deployment
 -

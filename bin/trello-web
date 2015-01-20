@@ -22,10 +22,12 @@ board_ids:
   [repo name]: [board id]
 on_start:
   move_to: [list id]
-  archive: true
+  archive: false
+on_comment:
+  archive: false
 on_close:
   move_to: [list id]
-  archive: true
+  archive: false
 # Alternatively, you can specify move_to as a hash of repo name -> list id
 on_close/on_start:
   move_to:

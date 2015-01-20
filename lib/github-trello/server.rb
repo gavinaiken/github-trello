@@ -31,7 +31,7 @@ module GithubTrello
 
       payload["commits"].each do |commit|
         # Figure out the card short id
-        match = commit["message"].match(/((case|card|close|archive|fix|finish)e?s?d? \D?([0-9]+))/i)
+        match = commit["message"].match(/((start|case|card|close|archive|fix|finish)e?s?d? \D?([0-9]+))/i)
         next unless match and match[3].to_i > 0
 
         results = http.get_card(board_id, match[3].to_i)
@@ -51,7 +51,8 @@ module GithubTrello
 
         # Determine the action to take
         update_config = case match[2].downcase
-          when "case", "card" then config["on_start"]
+          when "start" then config["on_start"]
+          when "case", "card" then config["on_comment"]
           when "close", "fix", "finish" then config["on_close"]
           when "archive" then {:archive => true}
         end
@@ -60,17 +61,19 @@ module GithubTrello
 
         # Modify it if needed
         to_update = {}
+        
+        if update_config.key?("move_to")
+          if update_config["move_to"].is_a?(Hash)
+            move_to = update_config["move_to"][payload["repository"]["name"]]
+          else
+            move_to = update_config["move_to"]
+          end
 
-        if update_config["move_to"].is_a?(Hash)
-          move_to = update_config["move_to"][payload["repository"]["name"]]
-        else
-          move_to = update_config["move_to"]
+          unless results["idList"] == move_to
+            to_update[:idList] = move_to
+          end
         end
-
-        unless results["idList"] == move_to
-          to_update[:idList] = move_to
-        end
-
+        
         if !results["closed"] and update_config["archive"]
           to_update[:closed] = true
         end

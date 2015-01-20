@@ -4,7 +4,7 @@ Allows you to manage or reference your Trello board through commits to Github. T
 
 Commands
 -
-Commit messages are searched for `(case|card|close|archive|fix|finish)e?s? \D?([0-9]+)` to find the card short id. Case/card resolve to on_start configuration, close/fix/finish resolve to on_close, and archive will just archive the card regardless.
+Commit messages are searched for `(start|case|card|close|archive|fix|finish)e?s? \D?([0-9]+)` to find the card short id. Start resolves to on_start configuration, case/card resolve to on_comment, close/fix/finish resolve to on_close, and archive will just archive the card regardless.
 
 The commit message is added as a comment to the card as well.
 

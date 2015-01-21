@@ -16,6 +16,10 @@ module GithubTrello
       http_request(:put, "/1/cards/#{card_id}", :params => params)
     end
 
+    def get_comments(card_id)
+      http_request(:get, "/1/cards/#{card_id}/actions", :params => {:filter => "commentCard"})
+    end
+
     def add_comment(card_id, comment)
       http_request(:post, "/1/cards/#{card_id}/actions/comments", :body => "text=#{CGI::escape(comment)}")
     end

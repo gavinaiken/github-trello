@@ -43,10 +43,19 @@ module GithubTrello
         results = JSON.parse(results)
 
         # Add the commit comment
-        message = "#{commit["author"]["name"]}: #{commit["message"]}\n\n[#{branch}] #{commit["url"]}"
+        message = "#{commit["author"]["name"]}: #{commit["message"]}\n\n#{commit["url"]}"
         message.gsub!(/^ *\[ *#{match[1]} *\].*$/, "")
         message.gsub!(/\(\)$/, "")
 
+        # Get comments, if comment already there, do nothing
+        comments = http.get_comments(results["id"])
+        comments = JSON.parse(comments)
+        existing_comment = comments.any? {|comment| comment["data"]["text"] == message}
+        if existing_comment
+          puts "Comment with text '#{message}' already exists, skipping"
+          next
+        end
+        
         http.add_comment(results["id"], message)
 
         # Determine the action to take
